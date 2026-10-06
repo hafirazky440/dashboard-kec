@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/*
+| Palet warna dashboard publik
+|-----------------------------
+| Warna mudah diganti di satu tempat. Kalau nanti memakai identitas visual
+| kecamatan yang lain, cukup ubah blok di bawah, seluruh halaman ikut berubah.
+| Emerald dipakai sebagai warna utama karena relate dengan administrasi desa.
+*/
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Warna utama: hijau emerald */
+    --color-dashboard-50: oklch(0.98 0.02 163);
+    --color-dashboard-100: oklch(0.95 0.05 163);
+    --color-dashboard-200: oklch(0.9 0.08 163);
+    --color-dashboard-300: oklch(0.83 0.11 163);
+    --color-dashboard-400: oklch(0.72 0.14 163);
+    --color-dashboard-500: oklch(0.62 0.15 163);
+    --color-dashboard-600: oklch(0.52 0.13 163);
+    --color-dashboard-700: oklch(0.44 0.11 163);
+    --color-dashboard-800: oklch(0.36 0.09 163);
+    --color-dashboard-900: oklch(0.3 0.07 163);
+}
+
+/*
+| Angka dalam tabel
+|------------------
+| Memakai tabular-nums supaya kolom angka rata lurus ke kanan. Tanpa ini,
+| angka 1.234 dan 88.500 akan terlihat tidak sejajar.
+*/
+@utility angka-tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+}
+
+/*
+| Nilai yang tidak tersedia
+|-------------------------
+| Data yang tidak ada di sumber ditampilkan dengan garis miring dan warna
+| redup, bukan angka nol. Nol berarti "tidak ada", sedangkan tanda ini
+| berarti "tidak diketahui".
+*/
+@utility nilai-kosong {
+    color: var(--color-slate-400);
+    font-style: italic;
+}
