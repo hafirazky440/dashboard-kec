@@ -10,32 +10,41 @@ import {
     Legend,
 } from 'chart.js';
 
+// Impor di atas memakai tree-shaking (hanya mengambil bagian yang dipakai),
+// jadi tiap bagian harus didaftarkan secara eksplisit. Tanpa baris ini,
+// Chart.js tidak mengenal skala "category" maupun tipe "bar"/"doughnut".
+Chart.register(BarController, BarElement, DoughnutController, ArcElement, CategoryScale, LinearScale, Tooltip, Legend);
+
 /*
 |--------------------------------------------------------------------------
 | Grafik dashboard
 |--------------------------------------------------------------------------
 |
-| Grafik sengaja digambar oleh JavaScript, bukan gambar statis, supaya
-| angkanya selalu ikut berubah saat data di database diperbarui.
+| Grafik digambar oleh JavaScript, bukan gambar statis, supaya angkanya
+| selalu ikut berubah saat data di database diperbarui.
 |
 | Semua data sudah dikirim server lewat window.__dataDashboard, sehingga
 | angka di grafik dan angka di teks berasal dari sumber yang sama.
 |
 */
 
-Chart.defaults.font.family = "'Instrument Sans', ui-sans-serif, system-ui, sans-serif";
-Chart.defaults.color = '#64748b';
+Chart.defaults.font.family = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
+Chart.defaults.color = '#404943';
 
-// Warna diambil dari palet yang sama dengan kelas warna dashboard.
-// Kalau warnanya diganti di resources/css/app.css, ubah juga di sini.
+// Warna diambil dari token design system di resources/css/app.css.
+// Kalau paletnya diganti di sana, ubah juga di sini agar tetap selaras.
 const PALET = {
-    emerald: '#10b981',
-    emeraldGelap: '#059669',
-    amber: '#f59e0b',
-    biru: '#3b82f6',
-    lime: '#84cc16',
-    slate: '#cbd5e1',
+    hijauTua: '#00351f',
+    hijauKontainer: '#0f4d32',
+    emerald: '#006d3b',
+    mintDim: '#62dcad',
+    mint: '#80f9c8',
+    merah: '#ba1a1a',
+    outline: '#707972',
 };
+
+// Warna batang untuk grafik murid per jenjang, mengikuti desain.
+const WARNA_JENJANG = [PALET.mintDim, PALET.hijauTua, PALET.emerald, PALET.hijauKontainer];
 
 const sum = (values) => values.reduce((total, value) => total + value, 0);
 
@@ -55,7 +64,7 @@ function grafikBatang(element, config) {
                 legend: {
                     display: Boolean(config.adaLegenda),
                     position: 'bottom',
-                    labels: { boxWidth: 12, usePointStyle: true },
+                    labels: { boxWidth: 12, usePointStyle: true, color: '#404943' },
                 },
                 tooltip: {
                     callbacks: {
@@ -66,12 +75,12 @@ function grafikBatang(element, config) {
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: { autoSkip: false, maxRotation: 60, minRotation: 0 },
+                    ticks: { autoSkip: false, maxRotation: 60, minRotation: 0, color: '#404943' },
                 },
                 y: {
                     beginAtZero: true,
-                    grid: { color: '#f1f5f9' },
-                    ticks: { precision: 0 },
+                    grid: { color: '#dee8ff' },
+                    ticks: { precision: 0, color: '#707972' },
                 },
             },
         },
@@ -99,9 +108,13 @@ function grafikLingkaran(element, config) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '58%',
+            cutout: config.cutout ?? '58%',
             plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 12, usePointStyle: true } },
+                legend: {
+                    display: config.adaLegenda ?? true,
+                    position: 'bottom',
+                    labels: { boxWidth: 12, usePointStyle: true, color: '#404943' },
+                },
                 tooltip: {
                     callbacks: {
                         label: (item) => {
@@ -132,6 +145,42 @@ function gambarGrafik() {
         return;
     }
 
+    // Murid per jenjang (grafik utama).
+    const murid = document.querySelector('[data-grafik="murid"]');
+
+    if (murid) {
+        grafikBatang(murid, {
+            adaLegenda: false,
+            data: {
+                labels: data.murid.jenjang,
+                datasets: [
+                    {
+                        label: 'Murid',
+                        data: data.murid.murid,
+                        backgroundColor: data.murid.jenjang.map((_, i) => WARNA_JENJANG[i % WARNA_JENJANG.length]),
+                        borderRadius: 8,
+                        maxBarThickness: 64,
+                    },
+                ],
+            },
+        });
+    }
+
+    // Demografi penduduk (donut gender). Legenda digambar di HTML,
+    // jadi di dalam kanvas legenda dimatikan.
+    const gender = document.querySelector('[data-grafik="gender"]');
+
+    if (gender) {
+        grafikLingkaran(gender, {
+            label: 'Penduduk',
+            labels: data.gender.label,
+            values: data.gender.total,
+            colors: [PALET.emerald, PALET.mintDim],
+            cutout: '72%',
+            adaLegenda: false,
+        });
+    }
+
     // Sekolah per jenjang, dipisah antara negeri dan swasta.
     const sekolah = document.querySelector('[data-grafik="sekolah"]');
 
@@ -145,38 +194,8 @@ function gambarGrafik() {
             data: {
                 labels: jenjang,
                 datasets: [
-                    {
-                        label: 'Negeri',
-                        data: nilaiNegeri,
-                        backgroundColor: PALET.emerald,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Swasta',
-                        data: nilaiSwasta,
-                        backgroundColor: PALET.amber,
-                        borderRadius: 4,
-                    },
-                ],
-            },
-        });
-    }
-
-    // Murid per jenjang.
-    const murid = document.querySelector('[data-grafik="murid"]');
-
-    if (murid) {
-        grafikBatang(murid, {
-            adaLegenda: false,
-            data: {
-                labels: data.murid.jenjang,
-                datasets: [
-                    {
-                        label: 'Murid',
-                        data: data.murid.murid,
-                        backgroundColor: PALET.biru,
-                        borderRadius: 4,
-                    },
+                    { label: 'Negeri', data: nilaiNegeri, backgroundColor: PALET.hijauTua, borderRadius: 6 },
+                    { label: 'Swasta', data: nilaiSwasta, backgroundColor: PALET.mintDim, borderRadius: 6 },
                 ],
             },
         });
@@ -190,7 +209,7 @@ function gambarGrafik() {
             label: 'Guru',
             labels: data.guru.label,
             values: data.guru.total,
-            colors: [PALET.emerald, PALET.amber],
+            colors: [PALET.hijauTua, PALET.mintDim],
         });
     }
 
@@ -206,8 +225,8 @@ function gambarGrafik() {
                     {
                         label: 'Kelahiran',
                         data: data.akta.total,
-                        backgroundColor: [PALET.emeraldGelap, PALET.amber],
-                        borderRadius: 4,
+                        backgroundColor: [PALET.emerald, PALET.merah],
+                        borderRadius: 6,
                     },
                 ],
             },
@@ -226,8 +245,8 @@ function gambarGrafik() {
                     {
                         label: 'Jumlah desa',
                         data: data.potensi.total,
-                        backgroundColor: PALET.lime,
-                        borderRadius: 4,
+                        backgroundColor: PALET.mintDim,
+                        borderRadius: 6,
                     },
                 ],
             },

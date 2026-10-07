@@ -4,27 +4,170 @@
 @source '../../storage/framework/views/*.php';
 
 /*
-| Palet warna dashboard publik
-|-----------------------------
-| Warna mudah diganti di satu tempat. Kalau nanti memakai identitas visual
-| kecamatan yang lain, cukup ubah blok di bawah, seluruh halaman ikut berubah.
-| Emerald dipakai sebagai warna utama karena relate dengan administrasi desa.
+| Design token
+|-------------
+| Seluruh warna, tipografi, dan jarak diambil dari design system Stitch
+| "Cicalengka Dalam Angka". Karena token ini terpusat di sini, mengganti
+| identitas visual cukup mengubah satu blok, seluruh halaman ikut berubah.
+|
+| Nama token sengaja dibuat sama persis dengan yang dipakai desain supaya
+| kelas seperti bg-primary, text-headline-xl, atau gap-gutter bisa langsung
+| dipakai tanpa lapisan penerjemah.
 */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Warna utama: hijau emerald */
-    --color-dashboard-50: oklch(0.98 0.02 163);
-    --color-dashboard-100: oklch(0.95 0.05 163);
-    --color-dashboard-200: oklch(0.9 0.08 163);
-    --color-dashboard-300: oklch(0.83 0.11 163);
-    --color-dashboard-400: oklch(0.72 0.14 163);
-    --color-dashboard-500: oklch(0.62 0.15 163);
-    --color-dashboard-600: oklch(0.52 0.13 163);
-    --color-dashboard-700: oklch(0.44 0.11 163);
-    --color-dashboard-800: oklch(0.36 0.09 163);
-    --color-dashboard-900: oklch(0.3 0.07 163);
+    /* Warna inti */
+    --color-primary: #00351f;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #0f4d32;
+    --color-on-primary-container: #82bd9a;
+    --color-primary-fixed: #b3f0cb;
+    --color-primary-fixed-dim: #98d4b0;
+    --color-on-primary-fixed: #002112;
+    --color-on-primary-fixed-variant: #145135;
+    --color-inverse-primary: #98d4b0;
+
+    --color-secondary: #006d3b;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #68fba0;
+    --color-on-secondary-container: #00723d;
+    --color-secondary-fixed: #6bfda3;
+    --color-secondary-fixed-dim: #4ae089;
+    --color-on-secondary-fixed: #00210e;
+    --color-on-secondary-fixed-variant: #00522b;
+
+    --color-tertiary: #003424;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #004d36;
+    --color-on-tertiary-container: #48c497;
+    --color-tertiary-fixed: #80f9c8;
+    --color-tertiary-fixed-dim: #62dcad;
+    --color-on-tertiary-fixed: #002115;
+    --color-on-tertiary-fixed-variant: #00513a;
+
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+
+    /* Permukaan */
+    --color-background: #f9f9ff;
+    --color-on-background: #111c2d;
+    --color-surface: #f9f9ff;
+    --color-on-surface: #111c2d;
+    --color-surface-dim: #cfdaf2;
+    --color-surface-bright: #f9f9ff;
+    --color-surface-variant: #d8e3fb;
+    --color-on-surface-variant: #404943;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f0f3ff;
+    --color-surface-container: #e7eeff;
+    --color-surface-container-high: #dee8ff;
+    --color-surface-container-highest: #d8e3fb;
+    --color-inverse-surface: #263143;
+    --color-inverse-on-surface: #ecf1ff;
+    --color-outline: #707972;
+    --color-outline-variant: #c0c9c0;
+    --color-surface-tint: #30694c;
+
+    /* Tipografi: semua memakai Plus Jakarta Sans */
+    --font-display-lg: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-headline-xl: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-headline-xl-mobile: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-headline-lg: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-headline-md: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-stat-metric: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body-lg: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body-md: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body-sm: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-label-md: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-label-sm: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --text-display-lg: 36px;
+    --text-display-lg--line-height: 44px;
+    --text-display-lg--letter-spacing: -0.03em;
+    --text-display-lg--font-weight: 700;
+
+    --text-headline-xl: 28px;
+    --text-headline-xl--line-height: 36px;
+    --text-headline-xl--letter-spacing: -0.02em;
+    --text-headline-xl--font-weight: 700;
+
+    --text-headline-xl-mobile: 22px;
+    --text-headline-xl-mobile--line-height: 28px;
+    --text-headline-xl-mobile--letter-spacing: -0.01em;
+    --text-headline-xl-mobile--font-weight: 700;
+
+    --text-headline-lg: 20px;
+    --text-headline-lg--line-height: 28px;
+    --text-headline-lg--letter-spacing: -0.01em;
+    --text-headline-lg--font-weight: 600;
+
+    --text-headline-md: 16px;
+    --text-headline-md--line-height: 24px;
+    --text-headline-md--font-weight: 600;
+
+    --text-stat-metric: 32px;
+    --text-stat-metric--line-height: 38px;
+    --text-stat-metric--letter-spacing: -0.02em;
+    --text-stat-metric--font-weight: 800;
+
+    --text-body-lg: 16px;
+    --text-body-lg--line-height: 24px;
+    --text-body-lg--font-weight: 400;
+
+    --text-body-md: 14px;
+    --text-body-md--line-height: 20px;
+    --text-body-md--font-weight: 400;
+
+    --text-body-sm: 12px;
+    --text-body-sm--line-height: 16px;
+    --text-body-sm--font-weight: 400;
+
+    --text-label-md: 13px;
+    --text-label-md--line-height: 18px;
+    --text-label-md--letter-spacing: 0.01em;
+    --text-label-md--font-weight: 600;
+
+    --text-label-sm: 11px;
+    --text-label-sm--line-height: 14px;
+    --text-label-sm--letter-spacing: 0.04em;
+    --text-label-sm--font-weight: 700;
+
+    /* Jarak mengikuti kelipatan 8pt pada desain */
+    --spacing-space-xs: 0.375rem;
+    --spacing-space-sm: 0.75rem;
+    --spacing-space-md: 1.25rem;
+    --spacing-space-lg: 1.75rem;
+    --spacing-space-xl: 2.5rem;
+    --spacing-gutter: 1.5rem;
+    --spacing-gutter-sm: 1rem;
+    --spacing-margin: 2rem;
+    --spacing-margin-sm: 1rem;
+}
+
+/*
+| Ikon Material Symbols
+|----------------------
+| Dipakai untuk ikon navigasi dan kartu. Dipanggil lewat kelas
+| material-symbols-outlined, sama seperti pada desain.
+*/
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /*
@@ -46,6 +189,6 @@
 | berarti "tidak diketahui".
 */
 @utility nilai-kosong {
-    color: var(--color-slate-400);
+    color: var(--color-outline);
     font-style: italic;
 }

@@ -97,6 +97,18 @@ class StatistikService
                 ? Pemerintahan::where('tahun_id', $tahunId)->orderBy('jenis')->get()
                 : collect(),
             'mbg' => $adaTahun ? Mbg::where('tahun_id', $tahunId)->orderBy('jenis')->get() : collect(),
+            // Daftar jalan, sungai, dan pasar ikut dikirim supaya dashboard
+            // bisa menampilkan rincian, bukan hanya jumlahnya. Semuanya dibaca
+            // dari database, bukan ditulis di view.
+            'jalan' => $adaTahun
+                ? Jalan::where('tahun_id', $tahunId)->orderByDesc('panjang_km')->get()
+                : collect(),
+            'sungai' => $adaTahun
+                ? Sungai::where('tahun_id', $tahunId)->orderByDesc('panjang_km')->get()
+                : collect(),
+            'pasar' => $adaTahun
+                ? Pasar::where('tahun_id', $tahunId)->orderByDesc('jumlah')->get()
+                : collect(),
             'fasilitas' => $adaTahun ? $this->fasilitas($tahunId) : [],
             'catatanVerifikasi' => $adaTahun ? $this->catatanVerifikasi($tahunId) : [],
         ];
