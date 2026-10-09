@@ -11,18 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tahun', function (Blueprint $table) {
-            $table->id();
-            $table->smallInteger('tahun')->unique();
-            $table->string('judul')->nullable();
-            $table->timestamps();
-        });
-
         Schema::create('desa', function (Blueprint $table) {
             $table->id();
-            $table->string('nama')->unique();
-            $table->string('slug')->unique();
-            $table->unsignedSmallInteger('urutan')->default(0);
+            $table->string('nama');
+            $table->decimal('luas_km2', 8, 2)->nullable();
+            $table->string('potensi');
             $table->timestamps();
         });
     }
@@ -33,6 +26,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('desa');
-        Schema::dropIfExists('tahun');
     }
 };
