@@ -2,18 +2,12 @@
 
 namespace App\Filament\Resources\Gurus\Schemas;
 
-use App\Models\Tahun;
-use App\Rules\UnikDalamLingkup;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
- * Formulir input jumlah guru per tahun.
- *
- * Kolom jenis menyimpan kategori guru, misalnya Sekolah Negeri dan Sekolah
- * Swasta. Tidak ada kolom desa_id karena sumber hanya memuat angka
- * guru tingkat kecamatan, bukan per desa.
+ * Formulir input data guru.
  */
 class GuruForm
 {
@@ -21,30 +15,22 @@ class GuruForm
     {
         return $schema
             ->components([
-                Select::make('tahun_id')
-                    ->label('Tahun')
-                    ->options(fn () => Tahun::orderByDesc('tahun')->pluck('tahun', 'id'))
-                    ->searchable()
-                    ->required(),
+                Section::make('Data Guru')
+                    ->schema([
+                        TextInput::make('jenis')
+                            ->label('Jenis Sekolah')
+                            ->maxLength(255)
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->helperText('Contoh: Sekolah Negeri, Sekolah Swasta.'),
 
-                Select::make('jenis')
-                    ->label('Jenis Guru')
-                    ->options([
-                        'Sekolah Negeri' => 'Sekolah Negeri',
-                        'Sekolah Swasta' => 'Sekolah Swasta',
+                        TextInput::make('jumlah')
+                            ->label('Jumlah')
+                            ->numeric()
+                            ->minValue(0)
+                            ->required(),
                     ])
-                    ->searchable()
-                    ->required()
-                    ->scopedUnique(modifyQueryUsing: UnikDalamLingkup::dalam('tahun_id'))
-                    ->validationMessages(['unique' => UnikDalamLingkup::pesan()])
-                    ->helperText('Pilih dari daftar atau ketik kategori lain bila muncul di sumber.'),
-
-                TextInput::make('jumlah')
-                    ->label('Jumlah Guru')
-                    ->numeric()
-                    ->minValue(0)
-                    ->required()
-                    ->helperText('Jumlah guru, bukan jumlah murid.'),
+                    ->columns(2),
             ]);
     }
 }

@@ -12,15 +12,15 @@ use App\Models\Desa;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
 /**
  * Resource admin untuk mengelola master data Desa.
  *
- * Desa adalah tabel dimensi: hampir semua tabel fakta per desa saling
- * menunjuk ke tabel ini lewat foreign key desa_id.
+ * Setiap desa menyimpan luas wilayahnya sendiri (kolom luas_km2) dan
+ * potensi/kategori tentang desa tersebut (kolom potensi), sehingga tabel
+ * geografi dan potensi yang terpisah tidak diperlukan lagi.
  */
 class DesaResource extends Resource
 {
@@ -31,11 +31,11 @@ class DesaResource extends Resource
      *
      * @var array<int, string>
      */
-    protected static array $searchableColumns = ['nama', 'slug'];
+    protected static array $searchableColumns = ['nama', 'potensi'];
 
     protected static ?string $model = Desa::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
 
     protected static ?string $navigationLabel = 'Desa';
 
@@ -45,7 +45,7 @@ class DesaResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Data Dasar';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

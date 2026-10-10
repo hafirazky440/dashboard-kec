@@ -1,10 +1,8 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Filament\Resources\AktaKelahiranDesas\Pages\CreateAktaKelahiranDesa;
-use App\Models\AktaKelahiranDesa;
-use App\Models\Desa;
-use App\Models\Tahun;
+use App\Filament\Resources\AktaKelahirans\Pages\CreateAktaKelahiran;
+use App\Models\AktaKelahiran;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,27 +25,24 @@ beforeEach(function () {
     Filament::setCurrentPanel('admin');
 
     $this->actingAs(User::factory()->create(['role' => UserRole::Admin]));
-
-    $this->tahun = Tahun::create(['tahun' => 2026, 'judul' => 'Cicalengka Dalam Angka 2026']);
-    $this->desa = Desa::create(['nama' => 'Cibodas', 'slug' => 'cibodas', 'urutan' => 1]);
 });
 
 it('mengisi total otomatis dari kolom rincian', function () {
-    Livewire::test(CreateAktaKelahiranDesa::class)
+    Livewire::test(CreateAktaKelahiran::class)
         ->fillForm([
-            'tahun_id' => $this->tahun->id,
-            'desa_id' => $this->desa->id,
+            'desa' => 'Cibodas',
             'wajib_laki_laki' => 100,
             'wajib_perempuan' => 50,
             'memiliki_laki_laki' => 80,
             'memiliki_perempuan' => 40,
             'belum_laki_laki' => 20,
             'belum_perempuan' => 10,
+            'persen_memiliki' => 80,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $data = AktaKelahiranDesa::firstOrFail();
+    $data = AktaKelahiran::firstOrFail();
 
     expect((int) $data->wajib_total)->toBe(150)
         ->and((int) $data->memiliki_total)->toBe(120)
@@ -58,10 +53,9 @@ it('mengisi total otomatis dari kolom rincian', function () {
 it('menyimpan total yang diketik manual walau berbeda dari penjumlahan', function () {
     // Angka di bawah meniru keadaan sumber cetakan: total lebih besar dari
     // penjumlahan rinciannya. Ini harus tetap bisa tersimpan.
-    Livewire::test(CreateAktaKelahiranDesa::class)
+    Livewire::test(CreateAktaKelahiran::class)
         ->fillForm([
-            'tahun_id' => $this->tahun->id,
-            'desa_id' => $this->desa->id,
+            'desa' => 'Cibodas',
             'wajib_laki_laki' => 2593,
             'wajib_perempuan' => 3445,
             'memiliki_laki_laki' => 100,
@@ -69,11 +63,12 @@ it('menyimpan total yang diketik manual walau berbeda dari penjumlahan', functio
             'belum_laki_laki' => 2493,
             'belum_perempuan' => 3345,
             'belum_total' => 6038,
+            'persen_memiliki' => 10,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $data = AktaKelahiranDesa::firstOrFail();
+    $data = AktaKelahiran::firstOrFail();
 
     expect((int) $data->belum_total)->toBe(6038)
         ->and($data->hitungSelisih('belum'))->toBe(200)

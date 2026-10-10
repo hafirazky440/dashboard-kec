@@ -3,14 +3,15 @@
 namespace App\Filament\Resources\Desas\Schemas;
 
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
  * Formulir input untuk data Desa.
  *
- * Nama desa dipakai sebagai kunci pencocokan di seeder (bukan id angka),
- * jadi menuliskan ulang dengan huruf kapital akan membuat seeder gagal
- * menemukan desa tersebut.
+ * Kolom luas_km2 dan potensi boleh kosong karena pada sumber cetakan tidak
+ * setiap desa mencantumkan luas, dan tidak semua desa punya potensi yang
+ * tercatat.
  */
 class DesaForm
 {
@@ -18,40 +19,32 @@ class DesaForm
     {
         return $schema
             ->components([
-                TextInput::make('nama')
-                    ->label('Nama Desa')
-                    ->maxLength(255)
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    // onBlur: alive dipanggil sekali saat kursor meninggalkan kolom,
-                    // bukan setiap ketikan. Cukup untuk mengisi slug, dan tidak
-                    // membebani server.
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (callable $set, callable $get, ?string $state): void {
-                        // Jangan menimpa slug yang sudah diisi manual.
-                        if (filled($get('slug'))) {
-                            return;
-                        }
+                Section::make('Identitas')
+                    ->schema([
+                        TextInput::make('nama')
+                            ->label('Nama Desa')
+                            ->maxLength(255)
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->helperText('Nama resmi desa. Contoh: Cicalengka Kulon.'),
+                    ]),
 
-                        $set('slug', str((string) $state)->slug()->toString());
-                    })
-                    ->helperText('Nama resmi desa. Contoh: Cicalengka Kulon.'),
+                Section::make('Wilayah dan Potensi')
+                    ->schema([
+                        TextInput::make('luas_km2')
+                            ->label('Luas Wilayah (km²)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->step(0.01)
+                            ->suffix('km²')
+                            ->helperText('Boleh kosong bila luas tidak tercantum pada sumber.'),
 
-                TextInput::make('slug')
-                    ->label('Slug')
-                    ->maxLength(255)
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->regex('/^[a-z0-9\-]+$/')
-                    ->helperText('Dipakai pada URL halaman publik. Otomatis terisi dari nama, bisa diubah manual.'),
-
-                TextInput::make('urutan')
-                    ->label('Urutan Tampil')
-                    ->numeric()
-                    ->minValue(1)
-                    ->default(99)
-                    ->required()
-                    ->helperText('Angka kecil tampil lebih dulu. Mengikuti urutan pada PDF sumber.'),
+                        TextInput::make('potensi')
+                            ->label('Potensi')
+                            ->maxLength(255)
+                            ->helperText('Potensi unggulan desa, misalnya pertanian atau pariwisata. Boleh kosong.'),
+                    ])
+                    ->columns(2),
             ]);
     }
 }

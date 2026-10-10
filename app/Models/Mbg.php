@@ -4,15 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['tahun_id', 'jenis', 'jumlah', 'satuan'])]
+#[Fillable(['nama', 'jumlah'])]
 class Mbg extends Model
 {
     protected $table = 'mbg';
-
-    public function tahun(): BelongsTo
-    {
-        return $this->belongsTo(Tahun::class);
-    }
 }

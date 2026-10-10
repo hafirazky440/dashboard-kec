@@ -11,16 +11,17 @@ use Illuminate\Support\Facades\Route;
 | Halaman ini terbuka untuk umum, tanpa perlu login. Panel admin yang
 | butuh autentikasi berada di /admin dan ditangani Filament.
 |
-| Tahun dipilih lewat query parameter ?tahun=, contoh:
-|   /?tahun=2026
-|   /desa/nagrog?tahun=2026
+| Halaman desa diakses lewat id, misalnya /desa/1, karena tabel desa tidak
+| punya kolom slug lagi. Route model binding memastikan id yang tidak ada
+| langsung melempar 404.
 |
-| Query parameter dipakai supaya halaman tetap punya satu URL yang bisa
-| ditandai dan dibagikan, berapa pun tahun yang sedang dilihat.
+| Tidak ada query parameter tahun: skema tabel mengikuti kolom pada file CSV
+| yang tidak punya dimensi tahun, jadi dashboard selalu menampilkan satu
+| snapshot terbaru.
 */
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/desa/{slug}', [DashboardController::class, 'desa'])
-    ->where('slug', '[a-z0-9\-]+')
+Route::get('/desa/{desa}', [DashboardController::class, 'desa'])
+    ->whereNumber('desa')
     ->name('desa');

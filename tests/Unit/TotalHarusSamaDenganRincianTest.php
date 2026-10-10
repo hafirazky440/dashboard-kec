@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\AktaKelahiranDesa;
+use App\Models\AktaKelahiran;
 use Illuminate\Support\Collection;
 
 /**
@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
  * perlu dijamin angkanya benar.
  */
 it('menghitung selisih total terhadap penjumlahannya', function () {
-    $data = new AktaKelahiranDesa([
+    $data = new AktaKelahiran([
         'wajib_laki_laki' => 100,
         'wajib_perempuan' => 50,
         'wajib_total' => 150,
@@ -34,7 +34,7 @@ it('menghitung selisih total terhadap penjumlahannya', function () {
 });
 
 it('menyatakan konsisten bila semua total sama dengan penjumlahannya', function () {
-    $data = new AktaKelahiranDesa([
+    $data = new AktaKelahiran([
         'wajib_laki_laki' => 100,
         'wajib_perempuan' => 50,
         'wajib_total' => 150,
@@ -50,7 +50,7 @@ it('menyatakan konsisten bila semua total sama dengan penjumlahannya', function 
 });
 
 it('mengembalikan null bila salah satu angkanya kosong', function () {
-    $data = new AktaKelahiranDesa([
+    $data = new AktaKelahiran([
         'wajib_laki_laki' => 100,
         'wajib_perempuan' => null,
         'wajib_total' => 150,

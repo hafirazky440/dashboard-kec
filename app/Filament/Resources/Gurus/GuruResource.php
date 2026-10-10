@@ -12,24 +12,27 @@ use App\Models\Guru;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
+/**
+ * Resource admin untuk data guru.
+ *
+ * Sumber cetakan hanya membedakan guru sekolah negeri dan swasta, tanpa
+ * rincian per jenjang.
+ */
 class GuruResource extends Resource
 {
     use HasGlobalSearchColumns;
 
     /**
-     * Kolom yang muncul di kotak pencarian global Cmd+K.
-     *
      * @var array<int, string>
      */
     protected static array $searchableColumns = ['jenis'];
 
     protected static ?string $model = Guru::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     protected static ?string $navigationLabel = 'Guru';
 
@@ -49,13 +52,6 @@ class GuruResource extends Resource
     public static function table(Table $table): Table
     {
         return GurusTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

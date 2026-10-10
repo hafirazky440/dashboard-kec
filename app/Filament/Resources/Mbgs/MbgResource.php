@@ -12,34 +12,34 @@ use App\Models\Mbg;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
+/**
+ * Resource admin untuk program Makan Bergizi Gratis (MBG / SPPG).
+ */
 class MbgResource extends Resource
 {
     use HasGlobalSearchColumns;
 
     /**
-     * Kolom yang muncul di kotak pencarian global Cmd+K.
-     *
      * @var array<int, string>
      */
-    protected static array $searchableColumns = ['jenis', 'satuan'];
+    protected static array $searchableColumns = ['nama'];
 
     protected static ?string $model = Mbg::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCake;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-sparkles';
 
-    protected static ?string $navigationLabel = 'MBG';
+    protected static ?string $navigationLabel = 'MBG / SPPG';
 
-    protected static ?string $modelLabel = 'data MBG';
+    protected static ?string $modelLabel = 'program MBG';
 
-    protected static ?string $pluralModelLabel = 'data MBG';
+    protected static ?string $pluralModelLabel = 'program MBG';
 
     protected static string|UnitEnum|null $navigationGroup = 'Potensi dan MBG';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -49,13 +49,6 @@ class MbgResource extends Resource
     public static function table(Table $table): Table
     {
         return MbgsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

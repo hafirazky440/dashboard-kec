@@ -23,8 +23,8 @@ class DesaFactory extends Factory
 
         return [
             'nama' => 'Desa Uji '.$urutan,
-            'slug' => 'desa-uji-'.$urutan,
-            'urutan' => $urutan,
+            'luas_km2' => fake()->randomFloat(2, 1, 100),
+            'potensi' => null,
         ];
     }
 }

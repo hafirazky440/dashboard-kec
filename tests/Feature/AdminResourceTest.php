@@ -1,34 +1,31 @@
 <?php
 
-use App\Filament\Resources\AktaKelahiranDesas\AktaKelahiranDesaResource;
-use App\Filament\Resources\AktaKelahiranDesas\Pages\ListAktaKelahiranDesas;
-use App\Filament\Resources\AktaKematianDesas\AktaKematianDesaResource;
+use App\Filament\Resources\AktaKelahirans\AktaKelahiranResource;
+use App\Filament\Resources\AktaKelahirans\Pages\ListAktaKelahirans;
+use App\Filament\Resources\AktaKematians\AktaKematianResource;
+use App\Filament\Resources\DataPenduduks\DataPendudukResource;
 use App\Filament\Resources\Desas\DesaResource;
-use App\Filament\Resources\GeografiDesas\GeografiDesaResource;
+use App\Filament\Resources\Desas\Pages\CreateDesa;
 use App\Filament\Resources\Gurus\GuruResource;
-use App\Filament\Resources\Jalans\JalanResource;
-use App\Filament\Resources\Kesehatans\KesehatanResource;
+use App\Filament\Resources\Kecamatans\KecamatanResource;
 use App\Filament\Resources\Mbgs\MbgResource;
 use App\Filament\Resources\Murids\MuridResource;
-use App\Filament\Resources\Pasars\PasarResource;
-use App\Filament\Resources\Pemerintahans\PemerintahanResource;
-use App\Filament\Resources\PotensiDesas\PotensiDesaResource;
-use App\Filament\Resources\ProfilKecamatans\ProfilKecamatanResource;
+use App\Filament\Resources\PegawaiKecamatans\PegawaiKecamatanResource;
+use App\Filament\Resources\Pengairans\PengairanResource;
+use App\Filament\Resources\RuasJalans\RuasJalanResource;
+use App\Filament\Resources\SaranaPerdagangans\SaranaPerdaganganResource;
 use App\Filament\Resources\Sekolahs\SekolahResource;
-use App\Filament\Resources\Sungais\SungaiResource;
-use App\Filament\Resources\Tahuns\Pages\CreateTahun;
-use App\Filament\Resources\Tahuns\TahunResource;
-use App\Models\AktaKelahiranDesa;
-use App\Models\Tahun;
+use App\Models\AktaKelahiran;
+use App\Models\Desa;
 use App\Models\User;
-use Database\Seeders\AdministrasiKependudukanSeeder;
 use Database\Seeders\AdminUserSeeder;
+use Database\Seeders\AktaKelahiranSeeder;
+use Database\Seeders\AktaKematianSeeder;
 use Database\Seeders\BackfillUserRoleSeeder;
-use Database\Seeders\InfrastrukturSeeder;
-use Database\Seeders\PendidikanKesehatanSeeder;
-use Database\Seeders\PotensiDesaMbgSeeder;
-use Database\Seeders\ProfilDanPemerintahanSeeder;
-use Database\Seeders\TahunDesaSeeder;
+use Database\Seeders\DesaSeeder;
+use Database\Seeders\GuruSeeder;
+use Database\Seeders\MuridSeeder;
+use Database\Seeders\SekolahSeeder;
 use Filament\Auth\Pages\Login;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -42,21 +39,18 @@ use Livewire\Livewire;
 function resourceClasses(): array
 {
     return [
-        TahunResource::class,
         DesaResource::class,
-        ProfilKecamatanResource::class,
-        PemerintahanResource::class,
-        GeografiDesaResource::class,
-        AktaKematianDesaResource::class,
-        AktaKelahiranDesaResource::class,
-        JalanResource::class,
-        SungaiResource::class,
-        PasarResource::class,
+        KecamatanResource::class,
+        DataPendudukResource::class,
+        PegawaiKecamatanResource::class,
+        AktaKelahiranResource::class,
+        AktaKematianResource::class,
         SekolahResource::class,
         GuruResource::class,
         MuridResource::class,
-        KesehatanResource::class,
-        PotensiDesaResource::class,
+        RuasJalanResource::class,
+        PengairanResource::class,
+        SaranaPerdaganganResource::class,
         MbgResource::class,
     ];
 }
@@ -82,12 +76,12 @@ function adminUser(): User
 
 beforeEach(function () {
     $this->seed([
-        TahunDesaSeeder::class,
-        ProfilDanPemerintahanSeeder::class,
-        AdministrasiKependudukanSeeder::class,
-        InfrastrukturSeeder::class,
-        PendidikanKesehatanSeeder::class,
-        PotensiDesaMbgSeeder::class,
+        DesaSeeder::class,
+        AktaKelahiranSeeder::class,
+        AktaKematianSeeder::class,
+        SekolahSeeder::class,
+        GuruSeeder::class,
+        MuridSeeder::class,
         AdminUserSeeder::class,
         BackfillUserRoleSeeder::class,
     ]);
@@ -180,24 +174,25 @@ it('membuka halaman formulir tambah untuk setiap resource', function () {
 it('menyimpan record baru dari formulir', function () {
     $this->actingAs(User::first());
 
-    Livewire::test(CreateTahun::class)
+    Livewire::test(CreateDesa::class)
         ->fillForm([
-            'tahun' => 2030,
-            'judul' => 'Cicalengka Dalam Angka 2030',
+            'nama' => 'Desa Baru Untuk Test',
+            'luas_km2' => 1.25,
+            'potensi' => 'Pertanian',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Tahun::where('tahun', 2030)->exists())->toBeTrue();
+    expect(Desa::where('nama', 'Desa Baru Untuk Test')->exists())->toBeTrue();
 });
 
 it('menampilkan data yang sudah di-seed pada tabel akta kelahiran', function () {
     $this->actingAs(User::first());
 
     // Tabel menampilkan 10 baris per halaman secara default, jadi naikkan
-    // jumlah baris dulu supaya seluruh 12 data bisa diperiksa.
-    Livewire::test(ListAktaKelahiranDesas::class)
+    // jumlah baris dulu supaya seluruh data bisa diperiksa.
+    Livewire::test(ListAktaKelahirans::class)
         ->set('tableRecordsPerPage', 25)
         ->assertCountTableRecords(12)
-        ->assertCanSeeTableRecords(AktaKelahiranDesa::all());
+        ->assertCanSeeTableRecords(AktaKelahiran::all());
 });

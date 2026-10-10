@@ -4,17 +4,14 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Desas\DesaResource;
 use App\Filament\Resources\Murids\MuridResource;
-use App\Filament\Resources\PotensiDesas\PotensiDesaResource;
 use App\Filament\Resources\Sekolahs\SekolahResource;
+use App\Models\DataPenduduk;
 use App\Models\Desa;
 use App\Models\Guru;
-use App\Models\Jalan;
+use App\Models\Mbg;
 use App\Models\Murid;
-use App\Models\PotensiDesa;
-use App\Models\ProfilKecamatan;
+use App\Models\RuasJalan;
 use App\Models\Sekolah;
-use App\Models\Tahun;
-use Filament\Actions\ViewAction;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;
@@ -25,8 +22,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Widget ini menggantikan FilamentInfoWidget bawaan yang hanya berisi
  * tautan dokumentasi. Yang ditampilkan di sini adalah angka yang sebenarnya
- * menggambarkan isi database, termasuk berapa banyak catatan yang masih
- * perlu diperiksa karena sumbernya ambigu.
+ * menggambarkan isi database.
  *
  * Semua angka diambil dari database, bukan ditulis manual, supaya admin
  * langsung melihat kondisi data terkini tanpa harus membuka tiap tabel.
@@ -44,31 +40,29 @@ class DataSummaryWidget extends StatsOverviewWidget
      */
     protected function getStats(): array
     {
-        $tahun = Tahun::orderByDesc('tahun')->first();
-
-        $totalDesa = Desa::count();
-        $totalPenduduk = (int) ProfilKecamatan::sum('total_penduduk');
+        $totalPenduduk = $this->nilaiPenduduk('Total Penduduk');
+        $pendudukLk = $this->nilaiPenduduk('Laki-laki');
+        $pendudukPr = $this->nilaiPenduduk('Perempuan');
         $totalSekolah = (int) Sekolah::sum('jumlah');
         $totalMurid = (int) Murid::sum('jumlah');
         $totalGuru = (int) Guru::sum('jumlah');
-        $totalJalan = (int) Jalan::sum('panjang_km');
-        $jumlahPotensi = PotensiDesa::count();
-        $jumlahCatatan = $this->hitungCatatanPerluPeriksa();
+        $totalPanjangJalan = (float) RuasJalan::sum('panjang_km');
+        $totalMbg = (int) Mbg::sum('jumlah');
+        $jumlahPerluPeriksa = $this->hitungPerluPeriksa();
 
         return [
-            Stat::make('Tahun Data', $tahun?->tahun ?? 'Belum ada')
-                ->description($tahun?->judul ?? 'Belum ada data tahun')
-                ->descriptionIcon('heroicon-m-calendar')
-                ->color('primary'),
-
-            Stat::make('Jumlah Desa', $totalDesa)
+            Stat::make('Jumlah Desa', Desa::count())
                 ->description('Desa di wilayah Kecamatan Cicalengka')
                 ->descriptionIcon('heroicon-m-map-pin')
                 ->color('info')
-                ->action(ViewAction::make()->url(DesaResource::getUrl('index'))),
+                ->url(DesaResource::getUrl('index')),
 
-            Stat::make('Total Penduduk', number_format($totalPenduduk, 0, ',', '.'))
-                ->description('Laki-laki + perempuan')
+            Stat::make('Total Penduduk', $totalPenduduk !== null
+                ? number_format($totalPenduduk, 0, ',', '.')
+                : 'Tidak tersedia')
+                ->description($pendudukLk !== null && $pendudukPr !== null
+                    ? 'Laki-laki '.number_format($pendudukLk, 0, ',', '.').' · Perempuan '.number_format($pendudukPr, 0, ',', '.')
+                    : 'Jumlah laki-laki dan perempuan')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
 
@@ -76,65 +70,65 @@ class DataSummaryWidget extends StatsOverviewWidget
                 ->description('Guru tercatat '.number_format($totalGuru, 0, ',', '.'))
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('info')
-                ->action(ViewAction::make()->url(SekolahResource::getUrl('index'))),
+                ->url(SekolahResource::getUrl('index')),
 
             Stat::make('Total Murid', number_format($totalMurid, 0, ',', '.'))
-                ->description('Sistemik dan Madrasah Ibtidaiyah')
+                ->description('Seluruh jenjang pendidikan')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('info')
-                ->action(ViewAction::make()->url(MuridResource::getUrl('index'))),
+                ->url(MuridResource::getUrl('index')),
 
-            Stat::make('Panjang Jalan', number_format($totalJalan, 1, ',', '.').' km')
-                ->description('Jalan status desa dan setingkat desa')
+            Stat::make('Panjang Jalan', number_format($totalPanjangJalan, 1, ',', '.').' km')
+                ->description('Seluruh ruas jalan tercatat')
                 ->descriptionIcon('heroicon-m-map')
                 ->color('warning'),
 
-            Stat::make('Potensi Desa', $jumlahPotensi)
-                ->description('Kategori potensi yang tercatat')
+            Stat::make('Program MBG', number_format($totalMbg, 0, ',', '.'))
+                ->description('Akumulasi jumlah pada tabel MBG')
                 ->descriptionIcon('heroicon-m-sparkles')
-                ->color('success')
-                ->action(ViewAction::make()->url(PotensiDesaResource::getUrl('index'))),
+                ->color('success'),
 
-            Stat::make('Catatan Perlu Periksa', $jumlahCatatan)
-                ->description('Data tidak lengkap dari sumber PDF')
+            Stat::make('Perlu Diperiksa', $jumlahPerluPeriksa)
+                ->description('Baris yang kolom angkanya kosong pada sumber')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color($jumlahCatatan > 0 ? 'danger' : 'gray'),
+                ->color($jumlahPerluPeriksa > 0 ? 'danger' : 'gray'),
         ];
     }
 
     /**
-     * Menghitung baris yang memuat catatan verifikasi.
-     *
-     * Catatan ini diisi manual dari sumber PDF pada nilai yang ambigu, misalnya
-     * panjang jalan yang tidak tercetak atau satuan yang tidak sesuai. Angkanya
-     * sengaja ditampilkan supaya admin tahu masih ada pekerjaan pending,
-     * bukan disembunyikan supaya dashboard terlihat bersih.
+     * Membaca satu indikator dari tabel data_penduduk.
      */
-    protected function hitungCatatanPerluPeriksa(): int
+    protected function nilaiPenduduk(string $nama): ?int
     {
-        $kolomCatatan = [
-            'akta_kelahiran_desa' => 'catatan',
-            'akta_kematian_desa' => 'catatan',
-            'jalan' => 'catatan',
-            'pasar' => 'catatan',
-            'profil_kecamatan' => 'catatan',
-            'kesehatan' => 'catatan',
-        ];
+        $nilai = DataPenduduk::where('nama_data', $nama)->value('jumlah');
 
-        $total = 0;
+        return $nilai === null ? null : (int) $nilai;
+    }
 
-        foreach ($kolomCatatan as $tabel => $kolom) {
+    /**
+     * Menghitung baris yang angka wajibnya tidak terisi pada sumber cetakan.
+     *
+     * Nilai ini sengaja ditampilkan supaya admin tahu masih ada pekerjaan
+     * pending, bukan disembunyikan supaya dashboard terlihat bersih.
+     */
+    protected function hitungPerluPeriksa(): int
+    {
+        $jumlah = 0;
+
+        // Hanya tabel yang kolomnya wajib terisi pada sumber yang dihitung.
+        // Kolom desa.luas_km2 sengaja dibiarkan bebas karena tidak setiap
+        // desa mencantumkan luas wilayahnya pada cetakan.
+        foreach ([
+            ['ruas_jalan', 'panjang_km'],
+            ['pengairan', 'panjang_km'],
+        ] as [$tabel, $kolom]) {
             if (! Schema::hasColumn($tabel, $kolom)) {
                 continue;
             }
 
-            $total += DB::table($tabel)->whereNotNull($kolom)->where($kolom, '!=', '')->count();
+            $jumlah += (int) DB::table($tabel)->whereNull($kolom)->count();
         }
 
-        // Baris tanpa nilai sama sekali juga perlu diperiksa, misalnya jalan
-        // yang panjangnya tidak tercetak di sumber.
-        $total += DB::table('jalan')->whereNull('panjang_km')->count();
-
-        return $total;
+        return $jumlah;
     }
 }

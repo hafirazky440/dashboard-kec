@@ -181,21 +181,22 @@ function gambarGrafik() {
         });
     }
 
-    // Sekolah per jenjang, dipisah antara negeri dan swasta.
+    // Sekolah per jenis. Sumber sudah memuat jenjang sekaligus status dalam
+    // satu kolom jenis (misalnya "SD Negeri"), jadi tidak dipisah lagi.
     const sekolah = document.querySelector('[data-grafik="sekolah"]');
 
     if (sekolah) {
-        const jenjang = data.sekolah.jenjang;
-        const nilaiNegeri = jenjang.map((item) => data.sekolah.negeri[item] ?? 0);
-        const nilaiSwasta = jenjang.map((item) => data.sekolah.swasta[item] ?? 0);
-
         grafikBatang(sekolah, {
-            adaLegenda: true,
+            adaLegenda: false,
             data: {
-                labels: jenjang,
+                labels: data.sekolah.label,
                 datasets: [
-                    { label: 'Negeri', data: nilaiNegeri, backgroundColor: PALET.hijauTua, borderRadius: 6 },
-                    { label: 'Swasta', data: nilaiSwasta, backgroundColor: PALET.mintDim, borderRadius: 6 },
+                    {
+                        label: 'Sekolah',
+                        data: data.sekolah.total,
+                        backgroundColor: PALET.hijauTua,
+                        borderRadius: 6,
+                    },
                 ],
             },
         });

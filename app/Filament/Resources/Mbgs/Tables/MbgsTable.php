@@ -6,11 +6,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 /**
- * Definisi tabel data MBG di halaman admin.
+ * Definisi tabel program MBG di halaman admin.
  */
 class MbgsTable
 {
@@ -18,33 +17,26 @@ class MbgsTable
     {
         return $table
             ->columns([
-                TextColumn::make('jenis')
-                    ->label('Jenis Data')
+                TextColumn::make('nama')
+                    ->label('Keterangan')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold')
-                    ->wrap(),
+                    ->weight('bold'),
 
                 TextColumn::make('jumlah')
                     ->label('Jumlah')
                     ->numeric()
                     ->sortable(),
 
-                TextColumn::make('satuan')
-                    ->label('Satuan')
-                    ->badge()
-                    ->color('gray')
-                    ->sortable(),
-
-                TextColumn::make('tahun.tahun')
-                    ->label('Tahun')
-                    ->badge()
-                    ->color('gray')
-                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label('Terakhir Diubah')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('jenis')
+            ->defaultSort('nama')
             ->filters([
-                SelectFilter::make('tahun')->label('Tahun')->relationship('tahun', 'tahun'),
+                //
             ])
             ->recordActions([
                 EditAction::make()->label('Ubah'),

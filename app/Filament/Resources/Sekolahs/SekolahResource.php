@@ -12,30 +12,27 @@ use App\Models\Sekolah;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
 /**
- * Resource admin untuk jumlah sekolah per jenjang dan jenis per tahun.
+ * Resource admin untuk data sekolah.
  *
- * Kombinasi jenjang dan jenis unik dalam satu tahun, jadi data disimpan sebagai
- * baris terpisah kecil, bukan satu baris panjang dengan banyak kolom.
+ * Tabel sekolah pada sumber cetakan hanya membedakan sekolah negeri dan
+ * swasta, tanpa rincian jenjang seperti SD atau SMP.
  */
 class SekolahResource extends Resource
 {
     use HasGlobalSearchColumns;
 
     /**
-     * Kolom yang muncul di kotak pencarian global Cmd+K.
-     *
      * @var array<int, string>
      */
-    protected static array $searchableColumns = ['jenis', 'jenjang'];
+    protected static array $searchableColumns = ['jenis'];
 
     protected static ?string $model = Sekolah::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
 
     protected static ?string $navigationLabel = 'Sekolah';
 
@@ -55,13 +52,6 @@ class SekolahResource extends Resource
     public static function table(Table $table): Table
     {
         return SekolahsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

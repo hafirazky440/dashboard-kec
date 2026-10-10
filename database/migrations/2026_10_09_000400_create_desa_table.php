@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->decimal('luas_km2', 8, 2)->nullable();
-            $table->string('potensi');
+            $table->string('potensi')->nullable();
             $table->timestamps();
         });
     }

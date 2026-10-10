@@ -43,9 +43,8 @@
         @php
             // Struktur navigasi mengikuti design system: Dashboard, lalu
             // kategori data yang dikelompokkan. Tautan menuju bagian di
-            // halaman yang sama (satu halaman panjang), atau kembali ke
-            // dashboard dengan membawa tahun yang sedang dipilih.
-            $tautanDasbor = route('dashboard', $tahun?->tahun ? ['tahun' => $tahun->tahun] : []);
+            // halaman yang sama (satu halaman panjang).
+            $tautanDasbor = route('dashboard');
             $navigasi = [
                 ['judul' => 'Dasbor', 'item' => [
                     ['id' => 'dashboard', 'label' => 'Dashboard', 'ikon' => 'dashboard'],
@@ -143,7 +142,7 @@
 
             <div class="border-t border-primary-container px-space-md py-space-sm">
                 <p class="font-label-sm text-label-sm text-primary-fixed-dim">
-                    BPS &amp; Profil Desa {{ $tahun?->tahun ?? '2026' }}
+                    BPS &amp; Profil Desa Kecamatan Cicalengka
                 </p>
             </div>
         </aside>

@@ -17,29 +17,26 @@ class DesasTable
     {
         return $table
             ->columns([
-                TextColumn::make('urutan')
-                    ->label('#')
-                    ->sortable(),
-
                 TextColumn::make('nama')
                     ->label('Nama Desa')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
 
-                TextColumn::make('slug')
-                    ->label('Slug')
-                    ->searchable()
-                    ->copyable()
-                    ->toggleable(),
+                TextColumn::make('luas_km2')
+                    ->label('Luas Wilayah')
+                    ->numeric(decimalPlaces: 2)
+                    ->suffix(' km²')
+                    ->sortable()
+                    ->placeholder('tidak tersedia')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('aktaKelahiranDesa_count')
-                    ->label('Data Akta Kelahiran')
-                    ->counts('aktaKelahiranDesa')
-                    ->badge()
-                    ->color('gray')
-                    // Kolom ini hanya informatif, tidak bisa difilter.
-                    ->sortable(),
+                TextColumn::make('potensi')
+                    ->label('Potensi')
+                    ->searchable()
+                    ->limit(40)
+                    ->placeholder('tidak tercatat')
+                    ->toggleable(),
 
                 TextColumn::make('updated_at')
                     ->label('Terakhir Diubah')
@@ -47,8 +44,7 @@ class DesasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            // Mengurutkan berdasarkan urutan_tampil, bukan id.
-            ->defaultSort('urutan')
+            ->defaultSort('nama')
             ->filters([
                 //
             ])

@@ -12,24 +12,24 @@ use App\Models\Murid;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
+/**
+ * Resource admin untuk data murid per jenjang pendidikan.
+ */
 class MuridResource extends Resource
 {
     use HasGlobalSearchColumns;
 
     /**
-     * Kolom yang muncul di kotak pencarian global Cmd+K.
-     *
      * @var array<int, string>
      */
     protected static array $searchableColumns = ['jenjang'];
 
     protected static ?string $model = Murid::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-identification';
 
     protected static ?string $navigationLabel = 'Murid';
 
@@ -49,13 +49,6 @@ class MuridResource extends Resource
     public static function table(Table $table): Table
     {
         return MuridsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

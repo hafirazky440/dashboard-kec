@@ -2,22 +2,19 @@
 
 namespace App\Providers;
 
-use App\Models\AktaKelahiranDesa;
-use App\Models\AktaKematianDesa;
+use App\Models\AktaKelahiran;
+use App\Models\AktaKematian;
+use App\Models\DataPenduduk;
 use App\Models\Desa;
-use App\Models\GeografiDesa;
 use App\Models\Guru;
-use App\Models\Jalan;
-use App\Models\Kesehatan;
+use App\Models\Kecamatan;
 use App\Models\Mbg;
 use App\Models\Murid;
-use App\Models\Pasar;
-use App\Models\Pemerintahan;
-use App\Models\PotensiDesa;
-use App\Models\ProfilKecamatan;
+use App\Models\PegawaiKecamatan;
+use App\Models\Pengairan;
+use App\Models\RuasJalan;
+use App\Models\SaranaPerdagangan;
 use App\Models\Sekolah;
-use App\Models\Sungai;
-use App\Models\Tahun;
 use App\Models\User;
 use App\Policies\ResourcePolicy;
 use Illuminate\Database\Eloquent\Model;
@@ -38,20 +35,17 @@ class AppServiceProvider extends ServiceProvider
      */
     protected array $modelTerpolicy = [
         Desa::class,
-        Tahun::class,
-        ProfilKecamatan::class,
-        Pemerintahan::class,
-        GeografiDesa::class,
-        AktaKelahiranDesa::class,
-        AktaKematianDesa::class,
-        Jalan::class,
-        Sungai::class,
-        Pasar::class,
+        Kecamatan::class,
+        DataPenduduk::class,
+        PegawaiKecamatan::class,
+        AktaKelahiran::class,
+        AktaKematian::class,
         Sekolah::class,
         Guru::class,
         Murid::class,
-        Kesehatan::class,
-        PotensiDesa::class,
+        RuasJalan::class,
+        Pengairan::class,
+        SaranaPerdagangan::class,
         Mbg::class,
     ];
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Desa;
 use App\Services\StatistikService;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 
 /**
  * Halaman publik dashboard statistik.
@@ -14,9 +13,8 @@ use Illuminate\Http\Request;
  * bukan ditulis di dalam view, sehingga perbaikan data langsung terlihat di
  * halaman tanpa perlu menyentuh kode.
  *
- * Tahun dipilih lewat query parameter ?tahun=, bukan lewat path. Alasannya,
- * tahun bukan bagian dari identitas halaman ini, dan cara ini membuat
- * halaman tetap bisa ditandai/dibagikan dengan satu URL yang sama.
+ * Skema tabel mengikuti kolom pada file CSV, yang tidak punya dimensi tahun,
+ * jadi halaman ini menyajikan satu snapshot terbaru tanpa pemilih tahun.
  */
 class DashboardController extends Controller
 {
@@ -27,24 +25,19 @@ class DashboardController extends Controller
     /**
      * Halaman utama dashboard.
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $tahun = $this->statistik->cariTahun($request->query('tahun'));
-
-        return view('dashboard', $this->statistik->untukTahun($tahun));
+        return view('dashboard', $this->statistik->ringkasan());
     }
 
     /**
      * Halaman detail satu desa.
      *
-     * Desa dicari lewat slug supaya URL-nya enak dibaca dan tetap valid
-     * meskipun nama desa diubah, selama slug-nya ikut diperbarui.
+     * Desa dicari lewat route model binding berdasarkan id, karena tabel desa
+     * tidak lagi menyimpan kolom slug.
      */
-    public function desa(Request $request, string $slug): View
+    public function desa(Desa $desa): View
     {
-        $desa = Desa::where('slug', $slug)->firstOrFail();
-        $tahun = $this->statistik->cariTahun($request->query('tahun'));
-
-        return view('desa', $this->statistik->untukDesa($desa, $tahun));
+        return view('desa', $this->statistik->untukDesa($desa));
     }
 }

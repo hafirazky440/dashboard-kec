@@ -36,17 +36,13 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            // Urutan grup mengikuti urutan bab pada buku Cicalengka Dalam
-            // Angka, dari identitas kecamatan sampai potensi dan MBG. Tanpa
-            // daftar ini, Filament menyusun grup berdasarkan abjad sehingga
-            // sidebar tidak lagi sama dengan urutan sumbernya.
+            // Urutan grup mengikuti urutan bab pada publikasi Cicalengka
+            // Dalam Angka. Tanpa daftar ini, Filament menyusun grup berdasar
+            // abjad sehingga sidebar tidak lagi sama dengan urutan sumbernya.
             ->navigationGroups([
                 'Data Dasar',
-                'Geografi',
                 'Administrasi Kependudukan',
-                'Pemerintahan',
                 'Pendidikan',
-                'Kesehatan',
                 'Infrastruktur',
                 'Potensi dan MBG',
             ])

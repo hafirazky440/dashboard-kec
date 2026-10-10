@@ -2,33 +2,31 @@
 
 namespace App\Services;
 
-use App\Models\AktaKelahiranDesa;
-use App\Models\AktaKematianDesa;
+use App\Models\AktaKelahiran;
+use App\Models\AktaKematian;
+use App\Models\DataPenduduk;
 use App\Models\Desa;
-use App\Models\GeografiDesa;
 use App\Models\Guru;
-use App\Models\Jalan;
+use App\Models\Kecamatan;
 use App\Models\Mbg;
 use App\Models\Murid;
-use App\Models\Pasar;
-use App\Models\Pemerintahan;
-use App\Models\PotensiDesa;
-use App\Models\ProfilKecamatan;
+use App\Models\PegawaiKecamatan;
+use App\Models\Pengairan;
+use App\Models\RuasJalan;
+use App\Models\SaranaPerdagangan;
 use App\Models\Sekolah;
-use App\Models\Sungai;
-use App\Models\Tahun;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Mengumpulkan angka statistik untuk dashboard publik.
  *
  * Prinsip yang dipegang di sini:
- * - Angka selalu dibaca dari database untuk tahun yang dipilih, bukan ditulis
- *   di dalam view. Kalau sumbernya diperbaiki, dashboard ikut berubah tanpa
- *   perlu menyentuh kode.
+ * - Angka selalu dibaca dari database, bukan ditulis di dalam view. Kalau
+ *   sumbernya diperbaiki, dashboard ikut berubah tanpa perlu menyentuh kode.
  * - Nilai yang tidak tersedia di sumber tetap null, bukan diisi nol. Bedanya
  *   penting: nol berarti "tidak ada", null berarti "tidak diketahui".
- * - Persentase selalu dihitung ulang dari nilai aslinya, tidak disimpan.
+ * - Skema tabel mengikuti kolom pada file CSV persis, tanpa dimensi tahun.
  *
  * Kelas ini sengaja hanya mengembalikan array biasa, tanpa objek khusus,
  * supaya view tinggal memakai $data['nilai'] tanpa perlu tambahan property.
@@ -36,222 +34,93 @@ use Illuminate\Support\Collection;
 class StatistikService
 {
     /**
-     * Tahun yang tersedia untuk dipilih pengguna.
-     *
-     * @return Collection<int, Tahun>
-     */
-    public function daftarTahun(): Collection
-    {
-        return Tahun::orderByDesc('tahun')->get();
-    }
-
-    /**
-     * Mencari tahun dari nilai yang dikirim pengguna.
-     *
-     * Nilai yang tidak dikenal tidak ditolak, tapi diganti tahun terbaru.
-     * Melempar 404 untuk ketikan yang salah terasa membingungkan dibanding
-     * dengan diam-diam menampilkan data tahun lain.
-     */
-    public function cariTahun(?string $nilai): ?Tahun
-    {
-        if ($nilai === null || $nilai === '') {
-            return Tahun::orderByDesc('tahun')->first();
-        }
-
-        return Tahun::where('tahun', (int) $nilai)
-            ->first()
-            ?? Tahun::orderByDesc('tahun')->first();
-    }
-
-    /**
-     * Semua statistik untuk satu tahun.
+     * Semua statistik untuk halaman dashboard.
      *
      * @return array<string, mixed>
      */
-    public function untukTahun(?Tahun $tahun): array
+    public function ringkasan(): array
     {
-        $tahunId = $tahun?->id;
-        $adaTahun = $tahunId !== null;
-
-        // Profil kecamatan dipakai oleh kartu dan oleh seksi profil sekaligus,
-        // jadi dibaca sekali lalu dipakai dua kali.
-        $profil = $adaTahun
-            ? ProfilKecamatan::where('tahun_id', $tahunId)->first()
-            : null;
-
         return [
-            'tahun' => $tahun,
-            'daftarTahun' => $this->daftarTahun(),
-            'kartu' => $this->kartu($tahunId, $adaTahun, $profil),
-            'profil' => $profil,
-            'sebaranDesa' => $adaTahun ? $this->sebaranDesa($tahunId) : collect(),
-            'sekolahPerJenjang' => $adaTahun ? $this->pendidikanPerJenjang($tahunId) : collect(),
-            'muridPerJenjang' => $adaTahun ? $this->muridPerJenjang($tahunId) : collect(),
-            'guruPerJenis' => $adaTahun ? $this->guruPerJenis($tahunId) : collect(),
-            'totalMurid' => $adaTahun ? (int) Murid::where('tahun_id', $tahunId)->sum('jumlah') : 0,
-            'totalGuru' => $adaTahun ? (int) Guru::where('tahun_id', $tahunId)->sum('jumlah') : 0,
-            'aktaKelahiran' => $adaTahun ? $this->aktaKelahiran($tahunId) : [],
-            'aktaKematian' => $adaTahun ? $this->aktaKematian($tahunId) : [],
-            'potensiPerKategori' => $adaTahun ? $this->potensiPerKategori($tahunId) : collect(),
-            'pemerintahan' => $adaTahun
-                ? Pemerintahan::where('tahun_id', $tahunId)->orderBy('jenis')->get()
-                : collect(),
-            'mbg' => $adaTahun ? Mbg::where('tahun_id', $tahunId)->orderBy('jenis')->get() : collect(),
-            // Daftar jalan, sungai, dan pasar ikut dikirim supaya dashboard
-            // bisa menampilkan rincian, bukan hanya jumlahnya. Semuanya dibaca
-            // dari database, bukan ditulis di view.
-            'jalan' => $adaTahun
-                ? Jalan::where('tahun_id', $tahunId)->orderByDesc('panjang_km')->get()
-                : collect(),
-            'sungai' => $adaTahun
-                ? Sungai::where('tahun_id', $tahunId)->orderByDesc('panjang_km')->get()
-                : collect(),
-            'pasar' => $adaTahun
-                ? Pasar::where('tahun_id', $tahunId)->orderByDesc('jumlah')->get()
-                : collect(),
-            'fasilitas' => $adaTahun ? $this->fasilitas($tahunId) : [],
-            'catatanVerifikasi' => $adaTahun ? $this->catatanVerifikasi($tahunId) : [],
+            'kecamatan' => Kecamatan::first(),
+            'penduduk' => $this->penduduk(),
+            'sebaranDesa' => $this->sebaranDesa(),
+            'sekolahPerJenis' => $this->sekolahPerJenis(),
+            'muridPerJenjang' => $this->muridPerJenjang(),
+            'guruPerJenis' => $this->guruPerJenis(),
+            'totalSekolah' => (int) Sekolah::sum('jumlah'),
+            'totalMurid' => (int) Murid::sum('jumlah'),
+            'totalGuru' => (int) Guru::sum('jumlah'),
+            'aktaKelahiran' => $this->aktaKelahiran(),
+            'aktaKematian' => $this->aktaKematian(),
+            'potensiPerKategori' => $this->potensiPerKategori(),
+            'pegawai' => PegawaiKecamatan::orderBy('status')->get(),
+            'mbg' => Mbg::orderBy('nama')->get(),
+            // Daftar jalan, pengairan, dan sarana perdagangan ikut dikirim
+            // supaya dashboard bisa menampilkan rincian, bukan hanya
+            // jumlahnya. Semuanya dibaca dari database.
+            'jalan' => RuasJalan::orderByDesc('panjang_km')->get(),
+            'pengairan' => Pengairan::orderByDesc('panjang_km')->get(),
+            'sarana' => SaranaPerdagangan::orderBy('nama')->get(),
+            'fasilitas' => $this->fasilitas(),
+            'catatanVerifikasi' => $this->catatanVerifikasi(),
         ];
     }
 
     /**
-     * Rekapitulasi jalan, pasar, dan sungai se-kecamatan.
+     * Indikator penduduk per kecamatan, dikunci berdasarkan nama_datanya.
      *
-     * @return array{jalan: int, panjangJalan: float, pasar: int, sungai: int}
+     * @return Collection<string, int>
      */
-    protected function fasilitas(int $tahunId): array
+    protected function penduduk(): Collection
     {
-        return [
-            'jalan' => Jalan::where('tahun_id', $tahunId)->count(),
-            'panjangJalan' => (float) Jalan::where('tahun_id', $tahunId)->sum('panjang_km'),
-            'pasar' => Pasar::where('tahun_id', $tahunId)->count(),
-            'sungai' => Sungai::where('tahun_id', $tahunId)->count(),
-        ];
+        return DataPenduduk::pluck('jumlah', 'nama_data')
+            ->map(fn ($nilai) => (int) $nilai);
     }
 
     /**
-     * Angka untuk kartu statistik di bagian atas halaman.
+     * Rekapitulasi jalan, pengairan, dan sarana perdagangan se-kecamatan.
      *
-     * @param  ?ProfilKecamatan  $profil  Sudah dibaca oleh pemanggil karena juga dipakai untuk seksi profil
-     * @return array<string, array{label: string, nilai: ?string, keterangan: string}>
+     * @return array{jalan: int, panjangJalan: float, pengairan: int, sarana: int}
      */
-    protected function kartu(?int $tahunId, bool $adaTahun, mixed $profil): array
+    protected function fasilitas(): array
     {
-        if (! $adaTahun) {
-            return [];
-        }
-
-        $totalSekolah = (int) Sekolah::where('tahun_id', $tahunId)->sum('jumlah');
-        $totalMurid = (int) Murid::where('tahun_id', $tahunId)->sum('jumlah');
-        $totalPanjangJalan = (float) Jalan::where('tahun_id', $tahunId)->sum('panjang_km');
-        $totalAkta = (int) AktaKelahiranDesa::where('tahun_id', $tahunId)->sum('wajib_total');
-
         return [
-            'penduduk' => [
-                'label' => 'Total Penduduk',
-                'nilai' => $profil?->total_penduduk !== null
-                    ? number_format((int) $profil->total_penduduk, 0, ',', '.')
-                    : null,
-                'keterangan' => 'Jumlah penduduk laki-laki dan perempuan',
-            ],
-            'desa' => [
-                'label' => 'Desa',
-                'nilai' => (string) Desa::count(),
-                'keterangan' => 'Desa di wilayah Kecamatan Cicalengka',
-            ],
-            'luas' => [
-                'label' => 'Luas Wilayah',
-                'nilai' => $profil?->luas_wilayah_km2 !== null
-                    ? number_format((float) $profil->luas_wilayah_km2, 2, ',', '.').' km²'
-                    : null,
-                'keterangan' => 'Luas wilayah dalam kilometer persegi',
-            ],
-            'sekolah' => [
-                'label' => 'Sekolah',
-                'nilai' => number_format($totalSekolah, 0, ',', '.'),
-                'keterangan' => 'SD, SMP, SMA, dan Madrasah Ibtidaiyah',
-            ],
-            'murid' => [
-                'label' => 'Murid',
-                'nilai' => number_format($totalMurid, 0, ',', '.'),
-                'keterangan' => 'Jumlah murid pada semua jenjang',
-            ],
-            'akta' => [
-                // Label menyebut "wajib" karena angkanya diambil dari
-                // wajib_total, yaitu seluruh kelahiran yang wajib berakta.
-                // Menulisnya sebagai "Kelahiran Terdaftar" saja akan dibaca
-                // sebagai jumlah akta yang sudah terbit, padahal yang
-                // dimaksud justru sebaliknya.
-                'label' => 'Kelahiran Wajib Terdaftar',
-                'nilai' => number_format($totalAkta, 0, ',', '.'),
-                'keterangan' => 'Seluruh kelahiran yang wajib memiliki akta, sebelum dikurangi yang belum menerbitkannya',
-            ],
-            'jalan' => [
-                'label' => 'Panjang Jalan',
-                'nilai' => number_format($totalPanjangJalan, 1, ',', '.').' km',
-                'keterangan' => 'Jalan status desa dan setingkat desa',
-            ],
+            'jalan' => RuasJalan::count(),
+            'panjangJalan' => (float) RuasJalan::sum('panjang_km'),
+            'pengairan' => Pengairan::count(),
+            'sarana' => SaranaPerdagangan::count(),
         ];
     }
 
     /**
-     * Luas wilayah dan jumlah penduduk per desa.
-     *
-     * Hanya dua desa yang punya data geografi pada sumber cetakan, jadi
-     * daftar ini berisi dua baris, bukan dua belas. Itu murni keterbatasan
-     * sumber, bukan kesalahan program.
+     * Luas wilayah dan potensi tiap desa.
      *
      * @return Collection<int, object>
      */
-    protected function sebaranDesa(int $tahunId): Collection
+    protected function sebaranDesa(): Collection
     {
-        // Ketiga tabel ini dibaca sekali untuk seluruh desa, bukan sekali per
-        // desa. Versi sebelumnya menjalankan tiga query untuk setiap desa, jadi
-        // dua belas desa berarti tiga puluh enam query untuk satu tabel saja.
-        // Jumlahnya tidak banyak, tapi pola seperti itu akan langsung berat
-        // begitu jumlah desa bertambah.
-        $geografiPerDesa = GeografiDesa::where('tahun_id', $tahunId)
-            ->get()
-            ->keyBy('desa_id');
-
-        $aktaPerDesa = AktaKelahiranDesa::where('tahun_id', $tahunId)
-            ->get()
-            ->keyBy('desa_id');
-
-        $potensiPerDesa = PotensiDesa::where('tahun_id', $tahunId)
-            ->get()
-            ->groupBy('desa_id');
-
         return Desa::query()
-            ->orderBy('urutan')
+            ->orderBy('nama')
             ->get()
-            ->map(function (Desa $desa) use ($geografiPerDesa, $aktaPerDesa, $potensiPerDesa): object {
-                $geografi = $geografiPerDesa->get($desa->id);
-                $kelahiran = $aktaPerDesa->get($desa->id);
-
-                return (object) [
-                    'desa' => $desa,
-                    'luas' => $geografi?->luas_km2,
-                    'wajib' => $kelahiran?->wajib_total,
-                    'memiliki' => $kelahiran?->memiliki_total,
-                    'persenMemiliki' => $kelahiran?->persen_memiliki,
-                    // Koleksi kosong, bukan null, supaya view tidak perlu
-                    // memeriksa dua bentuk data yang berbeda.
-                    'potensi' => $potensiPerDesa->get($desa->id)?->pluck('kategori') ?? collect(),
-                ];
-            });
+            ->map(fn (Desa $desa): object => (object) [
+                'desa' => $desa,
+                'luas' => $desa->luas_km2,
+                'potensi' => $desa->potensi,
+            ]);
     }
 
     /**
-     * Jumlah sekolah per jenjang dan jenis.
+     * Jumlah sekolah per jenis.
+     *
+     * Pada sumber, kolom jenis sudah memuat jenjang sekaligus status, misalnya
+     * "SD Negeri" atau "TK Swasta", jadi tidak dipisah lagi.
      *
      * @return Collection<int, object>
      */
-    protected function pendidikanPerJenjang(int $tahunId): Collection
+    protected function sekolahPerJenis(): Collection
     {
-        return Sekolah::where('tahun_id', $tahunId)
-            ->selectRaw('jenjang, jenis, SUM(jumlah) as total')
-            ->groupBy('jenjang', 'jenis')
+        return Sekolah::selectRaw('jenis, SUM(jumlah) as total')
+            ->groupBy('jenis')
             ->orderByDesc('total')
             ->get();
     }
@@ -259,23 +128,21 @@ class StatistikService
     /**
      * Jumlah murid per jenjang, disertai guru untuk jenjang yang sama.
      *
-     * Catatan penting: tabel guru di sumber cetakan tidak punya kolom jenjang.
-     * Guru hanya dipecah menjadi Sekolah Negeri dan Sekolah Swasta, sedangkan
-     * murid dipecah per jenjang. Karena itu angka guru tidak bisa dipasangkan
-     * per jenjang seperti biasanya, dan hanya ditampilkan sebagai
-     * total keseluruhan.
+     * Catatan penting: tabel guru tidak punya kolom jenjang. Guru hanya
+     * dipecah menjadi sekolah negeri dan swasta, sedangkan murid dipecah per
+     * jenjang. Karena itu angka guru tidak bisa dipasangkan per jenjang seperti
+     * biasanya, dan hanya ditampilkan sebagai total keseluruhan.
      *
      * @return Collection<int, object>
      */
-    protected function muridPerJenjang(int $tahunId): Collection
+    protected function muridPerJenjang(): Collection
     {
-        return Murid::where('tahun_id', $tahunId)
-            ->selectRaw('jenjang, SUM(jumlah) as total')
+        return Murid::selectRaw('jenjang, SUM(jumlah) as total')
             ->groupBy('jenjang')
             ->get()
             ->sortBy(function ($row): int {
                 // Urutan mengikuti jenjang pendidikan, bukan abjad, supaya
-                // grafik menampilkan TK di awal danPerguruan Tinggi di akhir.
+                // grafik menampilkan TK di awal dan Perguruan Tinggi di akhir.
                 $urutan = ['TK dan sederajat' => 1, 'SD dan sederajat' => 2, 'SMP dan sederajat' => 3, 'SMA dan sederajat' => 4];
 
                 return $urutan[$row->jenjang] ?? 99;
@@ -292,10 +159,9 @@ class StatistikService
      *
      * @return Collection<int, object>
      */
-    protected function guruPerJenis(int $tahunId): Collection
+    protected function guruPerJenis(): Collection
     {
-        return Guru::where('tahun_id', $tahunId)
-            ->selectRaw('jenis, SUM(jumlah) as total')
+        return Guru::selectRaw('jenis, SUM(jumlah) as total')
             ->groupBy('jenis')
             ->orderByDesc('total')
             ->get();
@@ -306,10 +172,9 @@ class StatistikService
      *
      * @return array<string, int|float|null>
      */
-    protected function aktaKelahiran(int $tahunId): array
+    protected function aktaKelahiran(): array
     {
-        $total = AktaKelahiranDesa::where('tahun_id', $tahunId)
-            ->selectRaw('
+        $total = AktaKelahiran::selectRaw('
                 SUM(wajib_laki_laki) as wajib_lk,
                 SUM(wajib_perempuan) as wajib_pt,
                 SUM(wajib_total) as wajib,
@@ -336,8 +201,6 @@ class StatistikService
             'belum_lk' => (int) $total->belum_lk,
             'belum_pt' => (int) $total->belum_pt,
             'belum' => (int) $total->belum,
-            // Persentase dihitung ulang, tidak pernah disimpan, supaya angka
-            // yang salah ketik di sumber tidak ikut terbawa ke laporan.
             'persen_memiliki' => $total->wajib > 0
                 ? round($total->memiliki / $total->wajib * 100, 2)
                 : null,
@@ -349,10 +212,9 @@ class StatistikService
      *
      * @return array<string, int>
      */
-    protected function aktaKematian(int $tahunId): array
+    protected function aktaKematian(): array
     {
-        $total = AktaKematianDesa::where('tahun_id', $tahunId)
-            ->selectRaw('SUM(laki_laki) as lk, SUM(perempuan) as pt, SUM(total) as total')
+        $total = AktaKematian::selectRaw('SUM(laki_laki) as lk, SUM(perempuan) as pt, SUM(total) as total')
             ->first();
 
         if ($total === null) {
@@ -367,17 +229,39 @@ class StatistikService
     }
 
     /**
-     * Jumlah desa per kategori potensi.
+     * Jumlah desa per jenis potensi.
+     *
+     * Kolom potensi di tabel desa berisi gabungan kata, misalnya "Pertanian dan
+     * UMKM". Supaya bisa dibuat grafik per potensi, nilai itu dipecah pada kata
+     * "dan" lalu dihitung per kunci. Satu desa karena itu bisa terhitung pada
+     * lebih dari satu kategori.
      *
      * @return Collection<int, object>
      */
-    protected function potensiPerKategori(int $tahunId): Collection
+    protected function potensiPerKategori(): Collection
     {
-        return PotensiDesa::where('tahun_id', $tahunId)
-            ->selectRaw('kategori, COUNT(*) as jumlah')
-            ->groupBy('kategori')
-            ->orderByDesc('jumlah')
-            ->get();
+        $hitung = [];
+
+        foreach (Desa::whereNotNull('potensi')->pluck('potensi') as $teks) {
+            foreach (preg_split('/\s+dan\s+/iu', (string) $teks) ?: [] as $potensi) {
+                $potensi = trim($potensi);
+
+                if ($potensi === '') {
+                    continue;
+                }
+
+                $hitung[$potensi] = ($hitung[$potensi] ?? 0) + 1;
+            }
+        }
+
+        arsort($hitung);
+
+        return collect($hitung)
+            ->map(fn (int $jumlah, string $kategori): object => (object) [
+                'kategori' => $kategori,
+                'jumlah' => $jumlah,
+            ])
+            ->values();
     }
 
     /**
@@ -389,15 +273,14 @@ class StatistikService
      *
      * @return array<int, object>
      */
-    protected function catatanVerifikasi(int $tahunId): array
+    protected function catatanVerifikasi(): array
     {
         $catatan = [];
 
         // Baris akta kelahiran yang totalnya berbeda dari penjumlahannya.
-        $selisih = AktaKelahiranDesa::where('tahun_id', $tahunId)
-            ->with('desa')
+        $selisih = AktaKelahiran::query()
             ->get()
-            ->filter(fn (AktaKelahiranDesa $row): bool => ! $row->totalKonsisten());
+            ->filter(fn (AktaKelahiran $row): bool => ! $row->totalKonsisten());
 
         foreach ($selisih as $row) {
             $detail = $row->daftarSelisih()
@@ -407,21 +290,40 @@ class StatistikService
 
             $catatan[] = (object) [
                 'sumber' => 'Administrasi Kependudukan',
-                'pesan' => "Jumlah akta kelahiran di Desa {$row->desa->nama} berbeda antara total dan rinciannya (selisih: {$detail}).",
+                'pesan' => "Jumlah akta kelahiran di Desa {$row->desa} berbeda antara total dan rinciannya (selisih: {$detail}).",
             ];
         }
 
-        // Profil kecamatan yang catatannya terisi.
-        $profil = ProfilKecamatan::where('tahun_id', $tahunId)
-            ->whereNotNull('catatan')
-            ->where('catatan', '!=', '')
-            ->first();
+        // Jumlah penduduk total yang tidak sama dengan jumlah laki-laki dan
+        // perempuannya. Pada sumber cetakan angka ini memang berbeda.
+        $penduduk = $this->penduduk();
+        $total = $penduduk->get('Total Penduduk');
+        $laki = $penduduk->get('Laki-laki');
+        $perempuan = $penduduk->get('Perempuan');
 
-        if ($profil !== null) {
+        if ($total !== null && $laki !== null && $perempuan !== null && $total !== $laki + $perempuan) {
             $catatan[] = (object) [
-                'sumber' => 'Profil Kecamatan',
-                'pesan' => $profil->catatan,
+                'sumber' => 'Data Penduduk',
+                'pesan' => 'Total penduduk '.number_format($total, 0, ',', '.')
+                    .' tidak sama dengan jumlah laki-laki dan perempuan ('
+                    .number_format($laki + $perempuan, 0, ',', '.')
+                    .'), selisih '.number_format(abs($total - $laki - $perempuan), 0, ',', '.').'.',
             ];
+        }
+
+        // Baris infrastruktur yang panjangnya tidak tercetak pada sumber.
+        foreach ([
+            ['ruas_jalan', 'Jalan'],
+            ['pengairan', 'Pengairan'],
+        ] as [$tabel, $judul]) {
+            $kosong = DB::table($tabel)->whereNull('panjang_km')->pluck('nama');
+
+            foreach ($kosong as $nama) {
+                $catatan[] = (object) [
+                    'sumber' => $judul,
+                    'pesan' => "Panjang {$nama} tidak tercetak pada sumber cetakan, jadi kolomnya dibiarkan kosong.",
+                ];
+            }
         }
 
         return $catatan;
@@ -430,84 +332,26 @@ class StatistikService
     /**
      * Semua data untuk halaman detail satu desa.
      *
+     * Data infrastruktur, sekolah, dan sarana perdagangan memang hanya ada
+     * pada tingkat kecamatan, bukan per desa, sehingga seluruh desa berbagi
+     * daftar yang sama.
+     *
      * @return array<string, mixed>
      */
-    public function untukDesa(Desa $desa, ?Tahun $tahun): array
+    public function untukDesa(Desa $desa): array
     {
-        $tahunId = $tahun?->id;
-        $adaTahun = $tahunId !== null;
-
         return [
             'desa' => $desa,
-            'tahun' => $tahun,
-            'daftarTahun' => $this->daftarTahun(),
+            'luas' => $desa->luas_km2,
+            'potensi' => $desa->potensi,
 
-            'geografi' => $adaTahun
-                ? GeografiDesa::where('desa_id', $desa->id)->where('tahun_id', $tahunId)->first()
-                : null,
+            'aktaKelahiran' => AktaKelahiran::where('desa', $desa->nama)->first(),
+            'aktaKematian' => AktaKematian::where('desa', $desa->nama)->first(),
 
-            'aktaKelahiran' => $adaTahun
-                ? AktaKelahiranDesa::where('desa_id', $desa->id)->where('tahun_id', $tahunId)->first()
-                : null,
-
-            'aktaKematian' => $adaTahun
-                ? AktaKematianDesa::where('desa_id', $desa->id)
-                    ->where('tahun_id', $tahunId)
-                    ->first()
-                : null,
-
-            'potensi' => $adaTahun
-                ? PotensiDesa::where('desa_id', $desa->id)->where('tahun_id', $tahunId)->pluck('kategori')
-                : collect(),
-
-            'sekolahTerdekat' => $adaTahun ? $this->sekolahSekitar($tahunId) : collect(),
-            'jalanSekitar' => $adaTahun ? $this->jalanSekitar($tahunId) : collect(),
-            'pasarSekitar' => $adaTahun ? $this->pasarSekitar($tahunId) : collect(),
-            'sungaiSekitar' => $adaTahun ? $this->sungaiSekitar($tahunId) : collect(),
+            'sekolah' => $this->sekolahPerJenis(),
+            'jalan' => RuasJalan::orderByDesc('panjang_km')->get(),
+            'pengairan' => Pengairan::orderByDesc('panjang_km')->get(),
+            'sarana' => SaranaPerdagangan::orderBy('nama')->get(),
         ];
-    }
-
-    /**
-     * Daftar sekolah untuk halaman desa.
-     *
-     * @return Collection<int, object>
-     */
-    protected function sekolahSekitar(int $tahunId): Collection
-    {
-        return Sekolah::where('tahun_id', $tahunId)
-            ->selectRaw('jenjang, jenis, SUM(jumlah) as total')
-            ->groupBy('jenjang', 'jenis')
-            ->orderByDesc('total')
-            ->get();
-    }
-
-    /**
-     * @return Collection<int, object>
-     */
-    protected function jalanSekitar(int $tahunId): Collection
-    {
-        return Jalan::where('tahun_id', $tahunId)
-            ->orderByDesc('panjang_km')
-            ->get(['id', 'nama', 'tingkat', 'panjang_km', 'batas']);
-    }
-
-    /**
-     * @return Collection<int, object>
-     */
-    protected function pasarSekitar(int $tahunId): Collection
-    {
-        return Pasar::where('tahun_id', $tahunId)
-            ->orderByDesc('jumlah')
-            ->get(['id', 'nama', 'jumlah', 'lokasi', 'hari_operasi', 'catatan']);
-    }
-
-    /**
-     * @return Collection<int, object>
-     */
-    protected function sungaiSekitar(int $tahunId): Collection
-    {
-        return Sungai::where('tahun_id', $tahunId)
-            ->orderByDesc('panjang_km')
-            ->get(['id', 'nama', 'panjang_km', 'status']);
     }
 }

@@ -21,37 +21,26 @@ use Illuminate\Support\Facades\Schema;
 
 $resourceToTable = [
     'Desas' => 'desa',
-    'ProfilKecamatans' => 'profil_kecamatan',
-    'Pemerintahans' => 'pemerintahan',
-    'GeografiDesas' => 'geografi_desa',
-    'AktaKematianDesas' => 'akta_kematian_desa',
-    'AktaKelahiranDesas' => 'akta_kelahiran_desa',
-    'Jalans' => 'jalan',
-    'Sungais' => 'sungai',
-    'Pasars' => 'pasar',
+    'Kecamatans' => 'kecamatan',
+    'DataPenduduks' => 'data_penduduk',
+    'PegawaiKecamatans' => 'pegawai_kecamatan',
+    'AktaKelahirans' => 'akta_kelahiran',
+    'AktaKematians' => 'akta_kematian',
     'Sekolahs' => 'sekolah',
     'Gurus' => 'guru',
     'Murids' => 'murid',
-    'Kesehatans' => 'kesehatan',
-    'PotensiDesas' => 'potensi_desa',
+    'RuasJalans' => 'ruas_jalan',
+    'Pengairans' => 'pengairan',
+    'SaranaPerdagangans' => 'sarana_perdagangan',
     'Mbgs' => 'mbg',
-    'Tahuns' => 'tahun',
 ];
 
 // Nama field yang memang bukan kolom database.
 $virtual = [
-    // Accessor pada model.
-    'persen_memiliki',
-    // Method pada model.
-    'total',
-    // Nama arbitrer untuk kolom yang nilai diambil dari relasi, query, atau
-    // perhitungan di model. Tidak ada kolomnya di database.
-    'total_tahun', 'subtotal', 'persentase', 'selisih', 'selisih_total',
-    'jumlah_data', 'jumlah_sekolah', 'jumlah_murid',
-    // Nama relasi belongsTo dan kolom milik relasi tersebut.
-    'tahun', 'tahun.tahun', 'desa', 'desa.nama',
+    // Kolom nilai hitung yang berada di luar database.
+    'total', 'selisih_total',
     // Kolom bawaan Laravel.
-    'slug', 'created_at', 'updated_at',
+    'created_at', 'updated_at',
 ];
 
 $problems = [];
