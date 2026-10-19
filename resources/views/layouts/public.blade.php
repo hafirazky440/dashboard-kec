@@ -91,11 +91,11 @@
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary-fixed font-headline-md text-headline-md font-bold tracking-tight text-on-secondary-fixed shadow-sm"
                 >
-                    CDA
+                    PADI
                 </div>
                 <div class="flex min-w-0 flex-col">
                     <span class="truncate font-headline-md text-headline-md tracking-tight text-on-primary">
-                        Cicalengka Dalam Angka
+                        PADI-Cicalengka
                     </span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary-fixed-dim">
                         Kecamatan Cicalengka
@@ -159,7 +159,7 @@
             >
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <span class="font-headline-md text-headline-md text-primary">Cicalengka Dalam Angka</span>
+            <span class="font-headline-md text-headline-md text-primary">PADI-Cicalengka</span>
         </header>
 
         <div class="lg:pl-72">

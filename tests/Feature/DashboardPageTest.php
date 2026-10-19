@@ -90,7 +90,7 @@ class DashboardPageTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Cicalengka Dalam Angka')
+            ->assertSee('PADI-Cicalengka')
             ->assertSee('Akta Kelahiran')
             ->assertSee('14.226');
     }

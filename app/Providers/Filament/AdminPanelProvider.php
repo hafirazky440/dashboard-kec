@@ -46,7 +46,7 @@ class AdminPanelProvider extends PanelProvider
                 'Infrastruktur',
                 'Potensi dan MBG',
             ])
-            ->brandName('Cicalengka Dalam Angka')
+            ->brandName('PADI-Cicalengka')
             // Mode ketat: kalau suatu model belum punya policy, Filament
             // berhenti dengan pesan jelas, bukan dengan diam-diam mengizinkan
             // semua orang. Semua model domain sudah didaftarkan di

@@ -48,7 +48,7 @@
             <div class="space-y-1">
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="font-headline-xl text-headline-xl tracking-tight text-primary">
-                        Cicalengka Dalam Angka
+                        PADI-Cicalengka
                     </h1>
                     <span class="inline-flex items-center rounded-full bg-secondary-fixed px-3 py-1 font-label-sm text-label-sm text-on-secondary-fixed">
                         Data Terkini
@@ -670,7 +670,7 @@
             <x-judul-bagian
                 id="pendidikan"
                 ikon="school"
-                judul="Pendidikan &amp; Tenaga Didik"
+                judul="Pendidikan &amp; Tenaga Pendidik"
                 keterangan="Jumlah sekolah dan murid per jenjang. Tabel guru pada sumber cetakan tidak dipecah per jenjang, hanya negeri dan swasta, sehingga angka guru ditampilkan terpisah."
             />
             <div class="grid grid-cols-1 gap-gutter lg:grid-cols-2">
