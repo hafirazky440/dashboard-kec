@@ -670,7 +670,7 @@
             <x-judul-bagian
                 id="pendidikan"
                 ikon="school"
-                judul="Pendidikan &amp; Tenaga Pendidik"
+                judul="Pendidikan"
                 keterangan="Jumlah sekolah dan murid per jenjang. Tabel guru pada sumber cetakan tidak dipecah per jenjang, hanya negeri dan swasta, sehingga angka guru ditampilkan terpisah."
             />
             <div class="grid grid-cols-1 gap-gutter lg:grid-cols-2">
