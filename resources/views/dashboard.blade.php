@@ -48,7 +48,7 @@
             <div class="space-y-1">
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="brand-judul font-headline-xl text-headline-xl tracking-tight text-primary">
-                         <span class="brand-tohaga">dashboard Tohaga cicalengka</span>
+                         <span class="brand-tohaga">DASHBOARD TOHAGA CICALENGKA</span>
                     </h1>
                     <span class="inline-flex items-center rounded-full bg-secondary-fixed px-3 py-1 font-label-sm text-label-sm text-on-secondary-fixed">
                         Data Terkini
