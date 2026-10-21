@@ -95,7 +95,7 @@
                 </div>
                 <div class="flex min-w-0 flex-col">
                     <span class="brand-judul truncate font-headline-md text-headline-md tracking-tight text-on-primary">
-                        Dashboard <span class="brand-tohaga">Tohaga</span> Cicalengka
+                         <span class="brand-tohaga">Dashboard Tohaga Cicalengka</span>
                     </span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary-fixed-dim">
                         Kecamatan Cicalengka
