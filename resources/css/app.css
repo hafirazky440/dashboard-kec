@@ -192,3 +192,20 @@
     color: var(--color-outline);
     font-style: italic;
 }
+
+.brand-judul {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 500;
+}
+
+.brand-tohaga {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-variation-settings: 'WONK' 1, 'opsz' 144;
+    font-size: 1.35em;
+    color: #2f7d4f;
+}
+
+.text-on-primary .brand-tohaga {
+    color: #82bd9a;
+}

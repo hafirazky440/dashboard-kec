@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
-        <title>@yield('judul', 'Dashboard') — {{ config('app.name') }}</title>
+        <title>Dashboard Tohaga Cicalengka</title>
 
         <meta
             name="description"
@@ -16,7 +16,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,WONK@9..144,800,1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         />
         <link
@@ -91,11 +91,11 @@
                 <div
                     class="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary-fixed font-headline-md text-headline-md font-bold tracking-tight text-on-secondary-fixed shadow-sm"
                 >
-                    PADI
+                    tohaga
                 </div>
                 <div class="flex min-w-0 flex-col">
-                    <span class="truncate font-headline-md text-headline-md tracking-tight text-on-primary">
-                        PADI-Cicalengka
+                    <span class="brand-judul truncate font-headline-md text-headline-md tracking-tight text-on-primary">
+                        Dashboard <span class="brand-tohaga">Tohaga</span> Cicalengka
                     </span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary-fixed-dim">
                         Kecamatan Cicalengka
@@ -159,7 +159,9 @@
             >
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <span class="font-headline-md text-headline-md text-primary">PADI-Cicalengka</span>
+            <h1 class="brand-judul font-headline-md text-headline-md text-primary">
+                Dashboard <span class="brand-tohaga">Tohaga</span> Cicalengka
+            </h1>
         </header>
 
         <div class="lg:pl-72">

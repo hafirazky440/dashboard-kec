@@ -11,6 +11,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -46,7 +47,14 @@ class AdminPanelProvider extends PanelProvider
                 'Infrastruktur',
                 'Potensi dan MBG',
             ])
-            ->brandName('PADI-Cicalengka')
+            ->brandName('Dashboard Tohaga Cicalengka')
+            ->brandLogo(fn () => view('components.brand-tohaga'))
+            ->brandLogoHeight('auto')
+            ->font('Plus Jakarta Sans')
+            ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): string => view('filament.admin.brand-style')->render(),
+            )
             // Mode ketat: kalau suatu model belum punya policy, Filament
             // berhenti dengan pesan jelas, bukan dengan diam-diam mengizinkan
             // semua orang. Semua model domain sudah didaftarkan di
