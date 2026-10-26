@@ -89,7 +89,7 @@
         >
             <div class="flex items-center gap-space-sm bg-primary-container p-space-md">
                
-                   <img src="{{ asset('images/logo-desa.png') }}" alt="Logo Desa" class="h-10 w-10 object-contain">
+                   <img src="{{ asset('images/logo-desa.jpeg') }}" alt="Logo Kecamatan Cicalengka" class="h-12 w-auto object-contain">
                  
                 <div class="flex min-w-0 flex-col">
                     <span class="brand-judul truncate font-headline-md text-headline-md tracking-tight text-on-primary">
