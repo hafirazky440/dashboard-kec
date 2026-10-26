@@ -88,11 +88,9 @@
             class="fixed left-0 top-0 z-50 flex h-full w-72 -translate-x-full flex-col bg-primary text-on-primary shadow-[0_1px_8px_rgba(0,0,0,0.06)] transition-transform duration-200 lg:translate-x-0"
         >
             <div class="flex items-center gap-space-sm bg-primary-container p-space-md">
-                <div
-                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary-fixed font-headline-md text-headline-md font-bold tracking-tight text-on-secondary-fixed shadow-sm"
-                >
-                    tohaga
-                </div>
+               
+                   <img src="{{ asset('images/logo-desa.png') }}" alt="Logo Desa" class="h-10 w-10 object-contain">
+                 
                 <div class="flex min-w-0 flex-col">
                     <span class="brand-judul truncate font-headline-md text-headline-md tracking-tight text-on-primary">
                          <span class="brand-tohaga">Dashboard Tohaga Cicalengka</span>
