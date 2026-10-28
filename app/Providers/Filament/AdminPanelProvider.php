@@ -46,6 +46,7 @@ class AdminPanelProvider extends PanelProvider
                 'Pendidikan',
                 'Infrastruktur',
                 'Potensi dan MBG',
+                'Pengaturan',
             ])
             ->brandName('Dashboard Tohaga Cicalengka')
             ->brandLogo(fn () => view('components.brand-tohaga'))

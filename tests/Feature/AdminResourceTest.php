@@ -15,6 +15,7 @@ use App\Filament\Resources\Pengairans\PengairanResource;
 use App\Filament\Resources\RuasJalans\RuasJalanResource;
 use App\Filament\Resources\SaranaPerdagangans\SaranaPerdaganganResource;
 use App\Filament\Resources\Sekolahs\SekolahResource;
+use App\Filament\Resources\Users\UserResource;
 use App\Models\AktaKelahiran;
 use App\Models\Desa;
 use App\Models\User;
@@ -52,6 +53,7 @@ function resourceClasses(): array
         PengairanResource::class,
         SaranaPerdaganganResource::class,
         MbgResource::class,
+        UserResource::class,
     ];
 }
 

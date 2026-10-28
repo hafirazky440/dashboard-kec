@@ -6,6 +6,7 @@ use App\Filament\Resources\Concerns\HasGlobalSearchColumns;
 use App\Filament\Resources\PegawaiKecamatans\Pages\CreatePegawaiKecamatan;
 use App\Filament\Resources\PegawaiKecamatans\Pages\EditPegawaiKecamatan;
 use App\Filament\Resources\PegawaiKecamatans\Pages\ListPegawaiKecamatans;
+use App\Filament\Resources\PegawaiKecamatans\RelationManagers\PegawaiDetailsRelationManager;
 use App\Filament\Resources\PegawaiKecamatans\Schemas\PegawaiKecamatanForm;
 use App\Filament\Resources\PegawaiKecamatans\Tables\PegawaiKecamatansTable;
 use App\Models\PegawaiKecamatan;
@@ -49,6 +50,13 @@ class PegawaiKecamatanResource extends Resource
     public static function table(Table $table): Table
     {
         return PegawaiKecamatansTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            PegawaiDetailsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

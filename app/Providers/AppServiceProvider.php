@@ -11,12 +11,15 @@ use App\Models\Kecamatan;
 use App\Models\Mbg;
 use App\Models\Murid;
 use App\Models\PegawaiKecamatan;
+use App\Models\PegawaiKecamatanDetail;
 use App\Models\Pengairan;
 use App\Models\RuasJalan;
 use App\Models\SaranaPerdagangan;
 use App\Models\Sekolah;
 use App\Models\User;
+use App\Policies\PegawaiKecamatanDetailPolicy;
 use App\Policies\ResourcePolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -72,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
             Gate::policy($model, ResourcePolicy::class);
         }
 
-        // User tidak punya resource CRUD, jadi cukup aturan dasarnya saja.
-        Gate::policy(User::class, ResourcePolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(PegawaiKecamatanDetail::class, PegawaiKecamatanDetailPolicy::class);
     }
 }

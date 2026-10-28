@@ -41,6 +41,26 @@ class PegawaiKecamatanForm
                             ->required(),
                     ])
                     ->columns(2),
+
+                Section::make('Data Pegawai')
+                    ->schema([
+                        TextInput::make('nama')
+                            ->label('Nama')
+                            ->dehydrated(false),
+                        TextInput::make('jabatan')
+                            ->label('Jabatan')
+                            ->dehydrated(false),
+                        TextInput::make('nip')
+                            ->label('NIP')
+                            ->dehydrated(false),
+                        TextInput::make('eselon')
+                            ->label('Eselon')
+                            ->dehydrated(false),
+                        TextInput::make('golongan')
+                            ->label('Golongan')
+                            ->dehydrated(false),
+                    ])
+                    ->columns(2),
             ]);
     }
 }
